@@ -1,9 +1,11 @@
-import { Text, View } from "react-native";
+import { Redirect } from 'expo-router';
 
 export default function Index() {
-  return (
-    <View className="flex-1 justify-center items-center">
-      <Text className="text-3xl font-bold">Be Not Real</Text>
-    </View>
-  );
+  const isAuth = false;
+
+  if (!isAuth) {
+    return <Redirect href="/(auth)/login" />;
+  }
+
+  return <Redirect href="/(tabs)" />;
 }

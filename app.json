@@ -1,17 +1,52 @@
 {
   "expo": {
-    "name": "be-not-real",
+    "name": "be not real.",
     "slug": "be-not-real",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/myicon/be-not-real-logo.png",
     "scheme": "benotreal",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "icon": "./assets/myicon/be-not-real-logo.png",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "We need access to your photos to let you share them with your friends.",
+        "NSCameraUsageDescription": "We need access to your camera to let you take photos.",
+        "NSMicrophoneUsageDescription": "We need access to your microphone to let you record videos.",
+        "NSLocationWhenInUseUsageDescription": "We need access to your location to let you share it with your friends.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "We need access to your location to let you share it with your friends.",
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "benotreal"
+            ]
+          },
+          {
+            "CFBundleURLSchemes": [
+              "benotreal"
+            ]
+          }
+        ]
+      },
+      "bundleIdentifier": "com.anonymous.benotreal"
     },
     "android": {
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -19,7 +54,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.benotreal"
     },
     "web": {
       "output": "static",
