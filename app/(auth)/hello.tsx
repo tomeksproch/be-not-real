@@ -1,8 +1,11 @@
+import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase/client';
+import { uploadProfileImage } from '@/lib/supabase/storage';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import {
@@ -21,6 +24,8 @@ export default function Hello() {
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const { user, updateUser } = useAuth();
+  const router = useRouter();
 
   const handleImagePicker = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -82,16 +87,42 @@ export default function Hello() {
 
     setLoading(true);
     try {
+      if (!user) {
+        throw new Error('User not found');
+      }
+
       const { data: existingUser } = await supabase
         .from('profiles')
         .select('id')
-        .eq('username', username);
+        .eq('username', username)
+        .neq('id', user.id)
+        .single();
 
       if (existingUser) {
         Alert.alert('Error', 'Username already exists');
         setLoading(false);
         return;
       }
+
+      // upload image
+      let profileImageUrl: string | null = null;
+      if (profileImage) {
+        try {
+          profileImageUrl = await uploadProfileImage(user.id, profileImage);
+        } catch (error) {
+          console.error('Error uploading profile image:', error);
+          Alert.alert('Error', 'Failed to upload profile image');
+        }
+      }
+
+      // update profile
+      await updateUser({
+        name,
+        username,
+        profileImage: profileImageUrl || undefined,
+        onboardingCompleted: true,
+      });
+      router.replace('/(tabs)');
     } catch {
       Alert.alert('Error', 'Failed to continue, try again later');
     } finally {
@@ -197,4 +228,7 @@ export default function Hello() {
       </SafeAreaView>
     </View>
   );
+}
+function updateUser(arg0: { name: string; username: string; profileImage: string | null }) {
+  throw new Error('Function not implemented.');
 }

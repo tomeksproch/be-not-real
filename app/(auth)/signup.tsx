@@ -3,7 +3,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -18,18 +18,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function SignupScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
   const { signUp } = useAuth();
 
-  useEffect(() => {
-    router.push('/(auth)/hello');
-  }, []);
-
   const handleSignUp = async () => {
-    if (!email || !password || !name) {
+    if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
@@ -40,6 +35,7 @@ export default function SignupScreen() {
     setLoading(true);
     try {
       await signUp(email, password);
+      router.push('/(auth)/hello');
     } catch {
       Alert.alert('Error', 'Failed to sign up, try again later');
     } finally {
@@ -76,26 +72,13 @@ export default function SignupScreen() {
               className="rounded-[24px] overflow-hidden border border-white/5"
             >
               <TextInput
-                placeholder="Full Name"
-                placeholderTextColor="#8E8E93"
-                autoComplete="name"
-                className="h-[56px] px-5 text-white text-[15px] bg-white/5"
-                value={name}
-                onChangeText={setName}
-              />
-            </BlurView>
-
-            <BlurView
-              intensity={20}
-              tint="dark"
-              className="rounded-[24px] overflow-hidden border border-white/5"
-            >
-              <TextInput
                 placeholder="Email"
                 placeholderTextColor="#8E8E93"
                 keyboardType="email-address"
                 autoComplete="email"
                 autoCapitalize="none"
+                autoCorrect={false}
+                spellCheck={false}
                 className="h-[56px] px-5 text-white text-[15px] bg-white/5"
                 value={email}
                 onChangeText={setEmail}
