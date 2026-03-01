@@ -229,6 +229,3 @@ export default function Hello() {
     </View>
   );
 }
-function updateUser(arg0: { name: string; username: string; profileImage: string | null }) {
-  throw new Error('Function not implemented.');
-}
