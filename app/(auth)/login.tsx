@@ -1,12 +1,45 @@
+import { useAuth } from '@/context/AuthContext';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LoginScreen() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { signIn } = useAuth();
+
   const router = useRouter();
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await signIn(email, password);
+      router.push('/(tabs)');
+    } catch {
+      Alert.alert('Error', 'Failed to sign in, try again later');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <View className="flex-1 bg-black">
       <StatusBar style="light" />
@@ -42,6 +75,8 @@ export default function LoginScreen() {
                 autoComplete="email"
                 autoCapitalize="none"
                 className="h-[56px] px-5 text-white text-[15px] bg-white/5"
+                value={email}
+                onChangeText={setEmail}
               />
             </BlurView>
 
@@ -57,6 +92,8 @@ export default function LoginScreen() {
                 autoComplete="password"
                 autoCapitalize="none"
                 className="h-[56px] px-5 text-white text-[15px] bg-white/5"
+                value={password}
+                onChangeText={setPassword}
               />
             </BlurView>
           </View>
@@ -74,15 +111,12 @@ export default function LoginScreen() {
               }}
             >
               <Text className="text-white text-[15px] font-black tracking-wider uppercase">
-                Sign In
+                {loading ? <ActivityIndicator color="white" size={24} /> : 'Sign In'}
               </Text>
             </LinearGradient>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            className="mt-6 items-center z-10"
-            onPress={() => router.push('/(auth)/signup')}
-          >
+          <TouchableOpacity className="mt-6 items-center z-10" onPress={handleLogin}>
             <Text className="text-white/60 text-[13px] font-medium">
               Don&apos;t have an account? <Text className="text-white font-bold">Sign Up</Text>
             </Text>
