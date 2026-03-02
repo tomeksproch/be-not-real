@@ -1,42 +1,16 @@
-import { Ionicons } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+import { Icon, Label, NativeTabs } from 'expo-router/unstable-native-tabs';
 
 export default function TabsLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: '#FFFFFF',
-        tabBarInactiveTintColor: '#525252',
-        tabBarStyle: {
-          backgroundColor: '#000000',
-          borderTopWidth: 0,
-          elevation: 0,
-        },
-        headerStyle: {
-          backgroundColor: '#000000',
-          shadowColor: 'transparent',
-        },
-        headerTintColor: '#FFFFFF',
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color, focused, size }) => (
-            <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ color, focused, size }) => (
-            <Ionicons name={focused ? 'person' : 'person-outline'} size={size} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+    <NativeTabs tintColor="#FF453A" labelStyle={{ color: '#8E8E93' }}>
+      <NativeTabs.Trigger name="index">
+        <Label>Home</Label>
+        <Icon sf={'house'} />
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="profile">
+        <Label>Profile</Label>
+        <Icon sf={'person'} />
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }
