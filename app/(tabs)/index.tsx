@@ -1,16 +1,31 @@
+import PostCard from '@/components/PostCard';
+import { Post, usePosts } from '@/hooks/usePosts';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { Alert, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  FlatList,
+  Modal,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Index() {
   const [showPreview, setShowPreview] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [description, setDescription] = useState<string>('');
+  const [isPosting, setIsPosting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const { createPost, posts, refreshPosts } = usePosts();
 
   const handleImagePicker = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -63,28 +78,72 @@ export default function Index() {
     ]);
   };
 
-  const handlePost = () => {
-    console.log('Posting with description:', description);
-    setShowPreview(false);
-    setPreviewImage(null);
-    setDescription('');
+  const handlePost = async () => {
+    if (!previewImage) return;
+
+    setIsPosting(true);
+    try {
+      await createPost(previewImage, description);
+      setShowPreview(false);
+      setPreviewImage(null);
+      setDescription('');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to create post');
+    } finally {
+      setIsPosting(false);
+    }
   };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refreshPosts();
+    setRefreshing(false);
+  };
+
+  const renderItem = ({ item }: { item: Post }) => <PostCard post={item} />;
+
+  const renderEmptyComponent = () => (
+    <View className="flex-1 justify-center items-center px-6 mt-32">
+      <Text className="text-3xl font-black text-white/10 tracking-tighter text-center mb-2">
+        Be Not Real
+      </Text>
+      <Text className="text-white/50 text-[15px] font-medium tracking-wide text-center">
+        Your profile is too authentic.
+      </Text>
+      <Text className="text-white/30 text-[13px] mt-1 text-center">
+        Click the plus button and fake your day.
+      </Text>
+    </View>
+  );
 
   return (
     <SafeAreaView edges={['top']} className="flex-1 bg-black">
       <StatusBar style="light" />
 
-      <View className="flex-1 justify-center items-center px-6">
-        <Text className="text-3xl font-black text-white/10 tracking-tighter text-center mb-2">
-          Be Not Real
-        </Text>
-        <Text className="text-white/50 text-[15px] font-medium tracking-wide text-center">
-          Twój profil jest zbyt autentyczny.
-        </Text>
-        <Text className="text-white/30 text-[13px] mt-1 text-center">
-          Kliknij plusa i sfałszuj swój dzień.
-        </Text>
-      </View>
+      <LinearGradient
+        colors={['#4A0E0E', 'transparent']}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 0.6 }}
+        style={[StyleSheet.absoluteFill, { opacity: 0.5 }]}
+      />
+
+      <FlatList
+        data={posts}
+        contentContainerStyle={{ paddingVertical: 24, paddingBottom: 100, flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        ListEmptyComponent={renderEmptyComponent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#FF453A"
+            colors={['#FF453A']}
+            progressBackgroundColor="#1C1C1E"
+          />
+        }
+      />
 
       <TouchableOpacity
         activeOpacity={0.8}
@@ -113,7 +172,7 @@ export default function Index() {
         transparent={false}
         onRequestClose={() => setShowPreview(false)}
       >
-        <SafeAreaView className="flex-1 bg-black">
+        <SafeAreaView edges={['top', 'bottom']} className="flex-1 bg-black">
           <LinearGradient
             colors={['#8B1A1A', '#3A0B0B', 'transparent']}
             start={{ x: 0.5, y: 0 }}
@@ -121,8 +180,8 @@ export default function Index() {
             style={[StyleSheet.absoluteFill, { height: 500, opacity: 0.7 }]}
           />
 
-          <View className="flex-1 justify-center px-6 z-10 gap-6">
-            <View className="flex-row justify-between items-center mb-6">
+          <View className="flex-1 pt-6 px-6 z-10 gap-6">
+            <View className="flex-row justify-between items-center mb-4">
               <TouchableOpacity onPress={() => setShowPreview(false)}>
                 <View className="bg-white/10 px-4 py-2.5 rounded-full border border-white/5">
                   <Text className="text-white/80 text-[13px] font-bold">Cancel</Text>
