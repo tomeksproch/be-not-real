@@ -58,7 +58,7 @@ export const usePosts = () => {
 
       const postsWithProfiles = postsData.map((post) => ({
         ...post,
-        profiles: post.profiles || null,
+        profiles: Array.isArray(post.profiles) ? post.profiles[0] : post.profiles,
       }));
 
       setPosts(postsWithProfiles);
