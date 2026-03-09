@@ -1,4 +1,5 @@
 import PostCard from '@/components/PostCard';
+import { useAuth } from '@/context/AuthContext';
 import { Post, usePosts } from '@/hooks/usePosts';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
@@ -7,6 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   FlatList,
   Modal,
@@ -17,7 +19,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function Index() {
   const [showPreview, setShowPreview] = useState(false);
@@ -26,6 +28,14 @@ export default function Index() {
   const [isPosting, setIsPosting] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const { createPost, posts, refreshPosts } = usePosts();
+  const { user } = useAuth();
+  const insets = useSafeAreaInsets();
+
+  const userActivePost = posts.find(
+    (post) => post.user_id === user?.id && post.is_active && new Date(post.expires_at) > new Date(),
+  );
+
+  const hasActivePost = !!userActivePost;
 
   const handleImagePicker = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -117,7 +127,7 @@ export default function Index() {
   );
 
   return (
-    <SafeAreaView edges={['top']} className="flex-1 bg-black">
+    <View className="flex-1 bg-black" style={{ paddingTop: insets.top }}>
       <StatusBar style="light" />
 
       <LinearGradient
@@ -141,7 +151,7 @@ export default function Index() {
             refreshing={refreshing}
             onRefresh={onRefresh}
             progressViewOffset={20}
-            tintColor="#FF453A"
+            tintColor="#FFFFFF"
             colors={['#FF453A']}
             progressBackgroundColor="#1C1C1E"
           />
@@ -175,7 +185,11 @@ export default function Index() {
         transparent={false}
         onRequestClose={() => setShowPreview(false)}
       >
-        <SafeAreaView edges={['top', 'bottom']} className="flex-1 bg-black">
+        <View
+          className="flex-1 bg-black"
+          style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+        >
+          <StatusBar style="light" />
           <LinearGradient
             colors={['#8B1A1A', '#3A0B0B', 'transparent']}
             start={{ x: 0.5, y: 0 }}
@@ -183,14 +197,14 @@ export default function Index() {
             style={[StyleSheet.absoluteFill, { height: 500, opacity: 0.7 }]}
           />
 
-          <View className="flex-1 pt-6 px-6 z-10 gap-6">
-            <View className="flex-row justify-between items-center mb-4">
+          <View className="flex-1 px-6 z-10 gap-6">
+            <View className="flex-row justify-between items-center py-4">
               <TouchableOpacity onPress={() => setShowPreview(false)}>
                 <View className="bg-white/10 px-4 py-2.5 rounded-full border border-white/5">
                   <Text className="text-white/80 text-[13px] font-bold">Cancel</Text>
                 </View>
               </TouchableOpacity>
-              <Text className="text-white text-xl font-black uppercase tracking-wider z-20">
+              <Text className="text-white text-xl font-black uppercase tracking-wider">
                 Draft Post
               </Text>
               <View className="w-16" />
@@ -228,7 +242,7 @@ export default function Index() {
             </View>
 
             <View className="mt-auto mb-6 z-20">
-              <TouchableOpacity activeOpacity={0.8} onPress={handlePost}>
+              <TouchableOpacity activeOpacity={0.8} onPress={handlePost} disabled={isPosting}>
                 <LinearGradient
                   colors={['#FF453A', '#FF9F0A']}
                   start={{ x: 0, y: 0 }}
@@ -240,15 +254,19 @@ export default function Index() {
                     alignItems: 'center',
                   }}
                 >
-                  <Text className="text-white text-[15px] font-black tracking-wider uppercase">
-                    Post
-                  </Text>
+                  {isPosting ? (
+                    <ActivityIndicator color="white" />
+                  ) : (
+                    <Text className="text-white text-[15px] font-black tracking-wider uppercase">
+                      {hasActivePost ? 'Update Post' : 'Post'}
+                    </Text>
+                  )}
                 </LinearGradient>
               </TouchableOpacity>
             </View>
           </View>
-        </SafeAreaView>
+        </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
