@@ -134,10 +134,13 @@ export default function Index() {
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={renderEmptyComponent}
+        alwaysBounceVertical={true}
+        overScrollMode="always"
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
+            progressViewOffset={20}
             tintColor="#FF453A"
             colors={['#FF453A']}
             progressBackgroundColor="#1C1C1E"

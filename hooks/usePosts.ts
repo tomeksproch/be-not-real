@@ -24,11 +24,13 @@ export interface Post {
 export const usePosts = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
 
   useEffect(() => {
-    loadPosts();
-  }, []);
+    if (!authLoading && user) {
+      loadPosts();
+    }
+  }, [user, authLoading]);
 
   const loadPosts = async () => {
     if (!user) return;
